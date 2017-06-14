@@ -2,3 +2,4 @@
 2.Opencv（我下载的那个版本）是一个可以被C++语言调用的库文件，所以要学会如何在VS中调用C++库文件。然后需要知道，Opencv的环境变量的配置。
 上述二者可以参考：http://blog.csdn.net/poem_qianmo/article/details/19809337，写的很详细。
 3.关于VS的程序，有两个模式，debug 和 release 。debug用于会保存调试信息，release不会保存调试信息，它是用于发布版本的调试，一般它的速度比debug快。
+  更多的可以参考：http://blog.csdn.net/gxiaob/article/details/9045085
