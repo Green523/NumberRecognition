@@ -1,0 +1,47 @@
+
+#include<opencv2/core/core.hpp>  
+#include <opencv2/imgproc/imgproc.hpp>  
+#include<opencv2/highgui/highgui.hpp>  
+#include<iostream>  
+using namespace std;
+using namespace cv;
+
+Mat getHistImg(const MatND& hist)
+{
+	double maxVal = 0;
+	double minVal = 0;
+
+	//找到直方图中的最大值和最小值
+	minMaxLoc(hist, &minVal, &maxVal, 0, 0);
+	int histSize = hist.rows;//hist是灰度直方图输出矩阵，？一维矩阵？
+	Mat histImg(histSize, histSize, CV_8UC1, Scalar(255));//该函数创建了一个黑色的都未画的直方图矩阵
+	// 设置最大峰值为图像高度的90%
+	int hpt = static_cast<int>(0.9*histSize);//static_cast<int>相当于从float转换为int类型
+
+	for (int h = 0; h<histSize; h++)
+	{
+		float binVal = hist.at<float>(h);
+		int intensity = static_cast<int>(binVal*hpt / maxVal);
+		line(histImg, Point(h, histSize), Point(h, histSize - intensity), Scalar::all(0));
+		//cv::line();上面的可以這样写，用于画线
+	}
+
+	return histImg;
+}
+int main()
+{
+	Mat Image = imread("new3.bmp", CV_LOAD_IMAGE_GRAYSCALE);
+	imwrite("灰度图/new3.bmp", Image);
+	namedWindow("灰度图");
+	imshow("灰度图", Image);
+	const int channels[1] = { 0 };
+	const int histSize[1] = { 256 };
+	float hranges[2] = { 0,255 };
+	const float* ranges[1] = { hranges };
+	MatND hist;
+	calcHist(&Image, 1, channels, Mat(), hist, 1, histSize, ranges);
+	namedWindow("直方图");
+	imshow("直方图",getHistImg(hist));
+	imwrite("直方图/new3.bmp", getHistImg(hist));
+	
+	}
