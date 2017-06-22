@@ -1,0 +1,88 @@
+#include<opencv2/core/core.hpp>  
+#include <opencv2/imgproc/imgproc.hpp>  
+#include<opencv2/highgui/highgui.hpp>  
+#include<iostream>  
+using namespace std;
+using namespace cv;
+
+int main()
+{
+	
+	Mat origImage = imread("new1.bmp");
+	Mat grayImage = imread("new1.bmp", CV_LOAD_IMAGE_GRAYSCALE);
+
+	//原图处理
+	//	namedWindow("【原图】");
+	//namedWindow("【原图效果图】膨胀操作");
+	//namedWindow("【原图效果图】腐蚀操作");
+
+//	imshow("【原图】", origImage);
+	Mat element = getStructuringElement(MORPH_RECT, Size(3, 3));
+	Mat ordillout;
+	Point anchor = Point(-1, -1);
+	dilate(origImage, ordillout, element, anchor, 5, BORDER_DEFAULT);
+	//显示原图效果图  
+	//imshow("【原图效果图】膨胀操作", ordillout);
+	Mat erodout;
+	erode(ordillout, erodout, element, anchor, 5);
+	//显示效果图  
+	//imshow("【原图效果图】腐蚀操作", erodout);
+
+	Mat grayerodout;
+	cvtColor(erodout, grayerodout, CV_RGB2GRAY, 0);
+	//namedWindow("【灰度图】");
+	//imshow("【灰度图】", grayerodout);
+/***************************************************************************
+	Mat equlizeImage;
+	equalizeHist(grayImage, equlizeImage);
+/*******************************************************************/
+
+	int data_max = 0, data_min = 255;//0是白，255是黑
+	int nl = grayerodout.rows;
+	int nc = grayerodout.cols *  grayerodout.channels();
+	int i, j;
+	uchar *data;
+	for (j = 0; j < nl; j++)
+	{
+		data = grayerodout.ptr<uchar>(j);
+		for (i = 0; i < nc; i++)
+		{
+			if (data[i] > data_max) data_max = data[i];//找到比最大值大的像素灰度值
+			if (data[i] < data_min) data_min = data[i];//找到比最小值小的像素灰度值
+		}
+	}
+
+
+
+	int temp = data_max - data_min;//差值
+	for (j = 0; j < nl; j++)
+	{
+		data = grayerodout.ptr<uchar>(j);
+		for (i = 0; i < nc; i++)
+		{
+			data[i] = (data[i] - data_min) * 255 / temp;
+		}
+	}
+	/***************************************************************************/
+	
+	//显示图像
+	namedWindow("Process Image");
+	imshow("Process Image", grayerodout);
+	
+
+	Mat thrArr2;
+	adaptiveThreshold(grayerodout, thrArr2, 255, ADAPTIVE_THRESH_MEAN_C, THRESH_BINARY, 91, 10);
+
+	namedWindow("自适应阈值化");
+	imshow("自适应阈值化", thrArr2);
+	imwrite("自适应阈值化/new1.bmp", thrArr2);
+	/************************************************************************/
+	Mat thrArr;
+	threshold(grayerodout, thrArr, 155, 255, THRESH_BINARY);
+	namedWindow("阈值化");
+	imshow("阈值化", thrArr);
+	imwrite("阈值化/new1.bmp", thrArr);
+
+	waitKey(0);
+	return 0;
+}
