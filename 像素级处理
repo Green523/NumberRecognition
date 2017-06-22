@@ -1,0 +1,50 @@
+#include<opencv2/core/core.hpp>  
+#include <opencv2/imgproc/imgproc.hpp>  
+#include<opencv2/highgui/highgui.hpp>  
+#include<iostream>  
+using namespace std;
+using namespace cv;
+
+int main() {
+/**************读入原始图片*********************************/
+	Mat origImage = imread("new3.bmp");
+	Mat grayImage = imread("new3.bmp", CV_LOAD_IMAGE_GRAYSCALE);
+	//显示对比效果
+	namedWindow("原始灰度图");
+	imshow("原始灰度图", grayImage);
+/*****************最大最小值的处理**************************/
+	int data_max = 0, data_min = 255;//0是白，255是黑
+	int nl = grayImage.rows;
+	int nc = grayImage.cols *  grayImage.channels();
+	int i, j;
+	uchar *data;
+	for (j = 0; j < nl; j++)
+	{
+		data = grayImage.ptr<uchar>(j);
+		for (i = 0; i < nc; i++)
+		{
+			if (data[i] > data_max) data_max = data[i];//找到比最大值大的像素灰度值
+			if (data[i] < data_min) data_min = data[i];//找到比最小值小的像素灰度值
+		}
+	}
+
+	cout << "data_max:" << data_max << " data_min:" << data_min << endl;
+
+	int data_high = data_max * 85 / 100;
+	int data_low = data_min * 200 / 100;
+	for (j = 0; j < nl; j++)
+	{
+		data = grayImage.ptr<uchar>(j);
+		for (i = 0; i < nc; i++)
+		{
+			data[i] > data_high ? data[i]=data[i] * 90 / 100
+				:data[i]>data_low?data[i]=data[i]
+				:data[i]=data[i] * 200 / 100;
+		}
+	}
+	namedWindow("原始灰度图1");
+	imshow("原始灰度图1", grayImage);
+	//system("pause");
+	waitKey(0);
+	return 0;
+}
